@@ -1,0 +1,30 @@
+﻿// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+RWStructuredBuffer<float2> Result;
+uniform uint Width;
+uniform uint Height;
+
+uniform uint WidthPerThread;
+uniform uint HeightPerThread;
+
+float HomePheromonDecayRate;
+float ResourcePheromonDecayRate;
+
+[numthreads(32,32,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    uint2 start, end;
+    start = uint2(Width / 32 * id.x, Height / 32 * id.y);
+
+    for (uint x = 0; x < WidthPerThread; x++)
+    {
+        for (uint y = 0; y < HeightPerThread; y++)
+        {
+            Result[(start.x + x) * Height + (start.y + y)].x *= 1 - HomePheromonDecayRate;
+            Result[(start.x + x) * Height + (start.y + y)].y *= 1 - ResourcePheromonDecayRate;
+        }
+    }
+}
